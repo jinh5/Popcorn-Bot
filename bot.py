@@ -31,5 +31,4 @@ async def on_message(message):
   elif user_message.lower() == "bye":
     await message.channel.send(f'Bye {username}')
 
-bot.add_command(help)
 client.run(token)
