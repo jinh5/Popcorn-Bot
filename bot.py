@@ -1,34 +1,40 @@
 import discord
-from discord.ext import commands
 import os
+from discord.ext import commands
 from dotenv import load_dotenv
 
-load_dotenv()
-intents = discord.Intents.default()  
-intents.message_content = True
-client = discord.Client(intents = intents)
-bot = commands.Bot(command_prefix='$', intents=intents)
-token = os.getenv('TOKEN')
+def main():
+  load_dotenv()
+  intents = discord.Intents.default()  
+  intents.message_content = True
+  client = commands.Bot(command_prefix='$', intents=intents)
+  token = os.getenv('TOKEN')
 
-@client.event
-async def on_ready():
-  print("Logged in as a bot {0.user}".format(client))
+  @client.event
+  async def on_ready():
+    print(f"{client.user.name} has connected to Discord")
 
-@client.event
-async def on_message(message):
-  username = str(message.author).split("#")[0]
-  channel = str(message.channel.name)
-  user_message = str(message.content)
+  @client.command()
+  async def createlist(ctx):
+    """Create a new list"""
+    pass
 
-  print(f'Message {user_message} by {username} on {channel}')
+  @client.command()
+  async def lists(ctx):
+    """View all lists"""
+    pass
 
-  if message.author == client.user:
-    return
+  @client.command()
+  async def add(ctx):
+    """Add a movie/tv show to a list"""
+    pass
 
-  if user_message.lower() == "hello" or user_message.lower() == "hi":
-    await message.channel.send(f'Hello {username}')
-    return
-  elif user_message.lower() == "bye":
-    await message.channel.send(f'Bye {username}')
+  @client.command()
+  async def remove(ctx):
+    """Remove a movie/tv show from a list"""
+    pass
 
-client.run(token)
+  client.run(token)
+
+if __name__ == '__main__':
+  main()
