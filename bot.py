@@ -2,39 +2,26 @@ import discord
 import os
 from discord.ext import commands
 from dotenv import load_dotenv
+import asyncio 
 
-def main():
-  load_dotenv()
-  intents = discord.Intents.default()  
-  intents.message_content = True
-  client = commands.Bot(command_prefix='$', intents=intents)
-  token = os.getenv('TOKEN')
+load_dotenv()
+intents = discord.Intents.default()  
+intents.message_content = True
+client = commands.Bot(command_prefix='$', intents=intents)
+token = os.getenv('TOKEN')
 
-  @client.event
-  async def on_ready():
-    print(f"{client.user.name} has connected to Discord")
+@client.event
+async def on_ready():
+  print(f"{client.user.name} has connected to Discord")
 
-  @client.command()
-  async def createlist(ctx):
-    """Create a new list"""
-    pass
+async def load():
+  for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+      await client.load_extension(f"cogs.{filename[:-3]}")
 
-  @client.command()
-  async def lists(ctx):
-    """View all lists"""
-    pass
+async def main():
+  async with client:
+    await load()
+    await client.start(token)
 
-  @client.command()
-  async def add(ctx):
-    """Add a movie/tv show to a list"""
-    pass
-
-  @client.command()
-  async def remove(ctx):
-    """Remove a movie/tv show from a list"""
-    pass
-
-  client.run(token)
-
-if __name__ == '__main__':
-  main()
+asyncio.run(main())
