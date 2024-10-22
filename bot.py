@@ -10,6 +10,8 @@ intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
 token = os.getenv('TOKEN')
 
+client.remove_command("help")
+
 @client.event
 async def on_ready():
   print(f"{client.user.name} has connected to Discord")
