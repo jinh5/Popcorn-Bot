@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS lists(
   films TEXT[]
 );
 
+ALTER TABLE lists ALTER COLUMN films SET DEFAULT array[]::text[];
