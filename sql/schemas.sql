@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS films(
-  movie_id SERIAL PRIMARY KEY,
+  film_id SERIAL PRIMARY KEY,
   title TEXT,
   watched BOOLEAN,
   lists TEXT[]
