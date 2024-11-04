@@ -10,5 +10,41 @@ class Lists(commands.Cog):
   async def on_ready(self):
     print("lists.py is ready") 
 
+  @commands.command()
+  async def create(self, ctx, *list_name):
+    embed_message = discord.Embed()
+    embed_message.add_field(name=' '.join(list_name), value='has been created')
+    await ctx.send(embed = embed_message)
+
+  # @commands.command()
+  # async def add(self, ctx):
+  #   embed_message = discord.Embed(title="Added entry")
+  #   await ctx.send(embed = embed_message)
+
+  # @commands.command()
+  # async def remove(self, ctx):
+  #   embed_message = discord.Embed(title="Removed entry")
+  #   await ctx.send(embed = embed_message)
+
+  # @commands.command()
+  # async def move(self, ctx):
+  #   embed_message = discord.Embed(title="Moved entry")
+  #   await ctx.send(embed = embed_message)
+  
+  # @commands.command()
+  # async def viewlists(self, ctx):
+  #   embed_message = discord.Embed(title="")
+  #   await ctx.send(embed = embed_message)
+
+  # @commands.command()
+  # async def view(self, ctx):
+  #   embed_message = discord.Embed(title="")
+  #   await ctx.send(embed = embed_message)
+
+  # @commands.command()
+  # async def changewatchstatus(self, ctx):
+  #   embed_message = discord.Embed(title="")
+  #   await ctx.send(embed = embed_message)
+
 async def setup(client):
   await client.add_cog(Lists(client))
