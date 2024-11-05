@@ -1,5 +1,10 @@
 import discord
+import os
+from dotenv import load_dotenv
+from discord import app_commands
 from discord.ext import commands
+
+load_dotenv()
 
 class Lists(commands.Cog):
   """Commands for organizing lists"""
@@ -10,46 +15,16 @@ class Lists(commands.Cog):
   async def on_ready(self):
     print("lists.py is ready") 
 
-  @commands.command()
-  async def create(self, ctx, *name_input):
-    list_name = ' '.join(name_input)
+  @app_commands.command(name="create")
+  async def create(self, interaction: discord.Interaction, list_name: str):
+    join_list_name = ''.join(list_name)
     await self.client.db.execute(
       'INSERT INTO lists(name) VALUES ($1)',
       list_name
     )
     embed_message = discord.Embed()
-    embed_message.add_field(name=list_name, value='has been created')
-    await ctx.send(embed = embed_message)
-
-  # @commands.command()
-  # async def add(self, ctx):
-  #   embed_message = discord.Embed(title="Added entry")
-  #   await ctx.send(embed = embed_message)
-
-  # @commands.command()
-  # async def remove(self, ctx):
-  #   embed_message = discord.Embed(title="Removed entry")
-  #   await ctx.send(embed = embed_message)
-
-  # @commands.command()
-  # async def move(self, ctx):
-  #   embed_message = discord.Embed(title="Moved entry")
-  #   await ctx.send(embed = embed_message)
-  
-  # @commands.command()
-  # async def viewlists(self, ctx):
-  #   embed_message = discord.Embed(title="")
-  #   await ctx.send(embed = embed_message)
-
-  # @commands.command()
-  # async def view(self, ctx):
-  #   embed_message = discord.Embed(title="")
-  #   await ctx.send(embed = embed_message)
-
-  # @commands.command()
-  # async def changewatchstatus(self, ctx):
-  #   embed_message = discord.Embed(title="")
-  #   await ctx.send(embed = embed_message)
+    embed_message.add_field(name=join_list_name, value='has been created')
+    await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
-  await client.add_cog(Lists(client))
+  await client.add_cog(Lists(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

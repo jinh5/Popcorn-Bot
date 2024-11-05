@@ -1,5 +1,10 @@
 import discord
+import os
+from dotenv import load_dotenv
+from discord import app_commands
 from discord.ext import commands
+
+load_dotenv()
 
 class Help(commands.Cog):
   def __init__(self, client):
@@ -10,9 +15,13 @@ class Help(commands.Cog):
     print("help.py is ready")
 
   @commands.command()
-  async def help(self, ctx):
-    help_embed = discord.Embed(title="Help Desk for Popcorn Bot", description="List of all commands for Popcorn Bot. Note: all entries will be documented in a master list containing everything.")
+  async def sync(self, ctx) -> None:
+    fmt = await ctx.bot.tree.sync(guild=ctx.guild)
+    await ctx.send(f'Synced {len(fmt)} command(s)')
 
+  @app_commands.command(name="help")
+  async def help2(self, interaction: discord.Interaction):
+    help_embed = discord.Embed(title="Help Desk for Popcorn Bot", description="List of all commands for Popcorn Bot. Note: all entries will be documented in a master list containing everything.")
     help_embed.add_field(name="create [list name]", value="Create a new list", inline=False)
     help_embed.add_field(name="add [entry name] [list name]", value="Add a new entry to the specified list", inline=False)
     help_embed.add_field(name="remove [entry name] [list name]", value="Remove an entry from the specified list (And the masterlist)", inline=False)
@@ -21,7 +30,7 @@ class Help(commands.Cog):
     help_embed.add_field(name="view [list name]", value="View all entries in the specified list", inline=False)
     help_embed.add_field(name="changewatchstatus [entry name]", value="Change the status of an entry from unwatched to watched and vice versa", inline=False)
     help_embed.add_field(name="help", value="Shows this command", inline=False)
-    await ctx.send(embed = help_embed)
+    await interaction.response.send_message(embed=help_embed)
 
 async def setup(client):
-  await client.add_cog(Help(client))
+  await client.add_cog(Help(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

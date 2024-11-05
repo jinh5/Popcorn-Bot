@@ -20,7 +20,8 @@ async def main():
       async with Bot(
         db=pool,
         command_prefix='$',
-        intents=intents
+        intents=intents,
+        application_id = os.getenv('APPLICATION_ID')
       ) as bot:
         intents.message_content = True
         await bot.start(token=os.getenv('TOKEN'))
