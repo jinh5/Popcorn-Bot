@@ -6,14 +6,14 @@ from discord.ext import commands
 
 load_dotenv()
 
-class Films_And_Lists(commands.Cog):
+class Films_and_Lists(commands.Cog):
   """Commands for organizing films & lists"""
   def __init__(self, client):
     self.client = client
   
   @commands.Cog.listener()
   async def on_ready(self):
-    print("lists.py is ready") 
+    print("filmsandlists.py is ready") 
 
   @app_commands.command(name="createlist")
   async def createlist(self, interaction: discord.Interaction, name: str):
@@ -28,4 +28,4 @@ class Films_And_Lists(commands.Cog):
       
 
 async def setup(client):
-  await client.add_cog(Films_And_Lists(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
+  await client.add_cog(Films_and_Lists(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
