@@ -1,14 +1,28 @@
-CREATE TABLE IF NOT EXISTS films(
-  film_id SERIAL PRIMARY KEY,
-  title TEXT,
-  watched BOOLEAN,
-  lists TEXT[]
-);
-
 CREATE TABLE IF NOT EXISTS lists(
-  list_id SERIAL PRIMARY KEY,
-  name TEXT,
-  films TEXT[]
+  list_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  list_name TEXT UNIQUE
 );
 
-ALTER TABLE lists ALTER COLUMN films SET DEFAULT array[]::text[];
+CREATE TABLE IF NOT EXISTS films(
+  film_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  title TEXT UNIQUE,
+  watch_status BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS lists_films(
+  list_id INT,
+  CONSTRAINT fk_list
+    FOREIGN KEY (list_id)
+      REFERENCES lists(list_id)
+        ON DELETE CASCADE,
+  film_id INT,
+  CONSTRAINT fk_film
+    FOREIGN KEY (film_id)
+      REFERENCES films(film_id)
+        ON DELETE CASCADE,
+  PRIMARY KEY (list_id, film_id)
+);
+
+ALTER TABLE "lists" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "films" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "lists_films" ENABLE ROW LEVEL SECURITY;
