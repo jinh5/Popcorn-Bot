@@ -15,16 +15,17 @@ class Lists(commands.Cog):
   async def on_ready(self):
     print("lists.py is ready") 
 
-  @app_commands.command(name="create")
-  async def create(self, interaction: discord.Interaction, list_name: str):
-    join_list_name = ''.join(list_name)
-    await self.client.db.execute(
-      'INSERT INTO lists(name) VALUES ($1)',
-      list_name
-    )
+  @app_commands.command(name="createlist")
+  async def createlist(self, interaction: discord.Interaction, name: str):
+    join_name = ''.join(name)
     embed_message = discord.Embed()
-    embed_message.add_field(name=join_list_name, value='has been created')
+    command = 'CREATE TABLE ' + join_name + ' (film_id INT, title TEXT, CONSTRAINT fk_film_id FOREIGN KEY (film_id) REFERENCES master_list(film_id), CONSTRAINT fk_title FOREIGN KEY (title) REFERENCES master_list(title))' 
+    await self.client.db.execute(command)
+    command2 = 'ALTER TABLE ' + join_name + ' ENABLE ROW LEVEL SECURITY'
+    await self.client.db.execute(command2)
+    embed_message.add_field(name=join_name, value='has been created')
     await interaction.response.send_message(embed=embed_message)
+      
 
 async def setup(client):
   await client.add_cog(Lists(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

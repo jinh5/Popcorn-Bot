@@ -6,13 +6,13 @@ from discord.ext import commands
 
 load_dotenv()
 
-class Help(commands.Cog):
+class Misc(commands.Cog):
   def __init__(self, client):
     self.client = client
   
   @commands.Cog.listener()
   async def on_ready(self):
-    print("help.py is ready")
+    print("misc.py is ready")
 
   @commands.command()
   async def sync(self, ctx) -> None:
@@ -20,7 +20,7 @@ class Help(commands.Cog):
     await ctx.send(f'Synced {len(fmt)} command(s)')
 
   @app_commands.command(name="help")
-  async def help2(self, interaction: discord.Interaction):
+  async def help(self, interaction: discord.Interaction):
     help_embed = discord.Embed(title="Help Desk for Popcorn Bot", description="List of all commands for Popcorn Bot. Note: all entries will be documented in a master list containing everything.")
     help_embed.add_field(name="create [list name]", value="Create a new list", inline=False)
     help_embed.add_field(name="add [entry name] [list name]", value="Add a new entry to the specified list", inline=False)
@@ -33,4 +33,4 @@ class Help(commands.Cog):
     await interaction.response.send_message(embed=help_embed)
 
 async def setup(client):
-  await client.add_cog(Help(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
+  await client.add_cog(Misc(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
