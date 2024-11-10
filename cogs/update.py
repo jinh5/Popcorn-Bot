@@ -25,8 +25,8 @@ class Update(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
   '''
 
-  @app_commands.command(name='renamelist', description='Change the name of a list')
-  async def renamelist(self, interaction: discord.Interaction, originalname: str, newname: str):
+  @app_commands.command(name='editlistname', description='Edit the name of a list')
+  async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):
     originalname_str = ''.join(originalname)
     newname_str = ''.join(newname)
     await self.client.db.execute(
@@ -39,6 +39,22 @@ class Update(commands.Cog):
     )
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originalname_str+'** has been renamed to **'+newname_str+'**')
+    await interaction.response.send_message(embed=embed_message)
+
+  @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
+  async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
+    originaltitle_str = ''.join(originaltitle)
+    newtitle_str = ''.join(newtitle)
+    await self.client.db.execute(
+    '''
+      UPDATE films
+      SET title = ($1)
+      WHERE title = ($2)
+      ''',
+      newtitle_str, originaltitle_str
+    )
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='**'+originaltitle_str+'** has been renamed to **'+newtitle_str+'**')
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

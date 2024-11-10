@@ -28,7 +28,8 @@ class Misc(commands.Cog):
     embed_message.add_field(name='add [film title] [list name]', value='Add a film to the specified list', inline=False)
     embed_message.add_field(name='viewlists', value='View all the lists that have been created', inline=False)
     embed_message.add_field(name='viewlist [list name]', value='View all films in the specified list', inline=False)
-    embed_message.add_field(name='renamelist', value='Change the name of a list', inline=False)
+    embed_message.add_field(name='editlistname [original name] [new name]', value='Edit the name of a list', inline=False)
+    embed_message.add_field(name='editfilmtitle [original title] [new title]', value='Edit the title of a film', inline=False)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
