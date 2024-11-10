@@ -25,7 +25,5 @@ class Update(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
   '''
 
-
-
 async def setup(client):
   await client.add_cog(Update(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
