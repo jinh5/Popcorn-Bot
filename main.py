@@ -28,14 +28,13 @@ async def main():
 
         async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
           if isinstance(error, app_commands.CommandOnCooldown):
-              return await interaction.response.send_message(f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!")
+            return await interaction.response.send_message(f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!")
           elif isinstance(error, app_commands.MissingPermissions):
-              return await interaction.response.send_message(f"You're missing permissions to use that")
+            return await interaction.response.send_message(f"You're missing permissions to use that")
           else:
-              embed_message = discord.Embed()
-              embed_message.add_field(name="ERROR", value=error)
-              await interaction.response.send_message(embed=embed_message, ephemeral=True)
-
+            embed_message = discord.Embed()
+            embed_message.add_field(name="ERROR", value=error)
+            await interaction.response.send_message(embed=embed_message, ephemeral=True)
         bot.tree.on_error = on_tree_error
 
         await bot.start(token=os.getenv('TOKEN'))

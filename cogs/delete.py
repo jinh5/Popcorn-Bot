@@ -25,5 +25,20 @@ class Delete(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
   '''
 
+  @app_commands.command(name='deletelist', description='Delete the specified list')
+  async def deletelist(self, interaction: discord.Interaction, name: str):
+    name_str = ''.join(name)
+    
+    await self.client.db.execute(
+      '''
+      DELETE FROM lists WHERE list_name = ($1)
+      ''',
+      name_str
+    )
+
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='Deleted **'+ name_str +'**')
+    await interaction.response.send_message(embed=embed_message)
+
 async def setup(client):
   await client.add_cog(Delete(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
