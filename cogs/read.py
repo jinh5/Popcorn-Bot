@@ -26,11 +26,11 @@ class Read(commands.Cog):
 
     embed_message = discord.Embed()
     if len(data)==0:
-      embed_message.add_field(name='No lists have been created', inline=False)
+      embed_message.add_field(name='', value='No lists have been created')
     else:
       embed_message = discord.Embed(title='Lists')
       for row in data:
-        embed_message.add_field(name='', value=row['list_name'], inline=False)
+        embed_message.add_field(name='', value=row['list_name'])
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
@@ -52,10 +52,10 @@ class Read(commands.Cog):
     embed_message = discord.Embed()
     embed_message = discord.Embed(title=listname)
     if len(data)==0:
-      embed_message.add_field(name='', value='No entries in this list', inline=False)
+      embed_message.add_field(name='', value='No entries in this list')
     else:
       for row in data:
-        embed_message.add_field(name='', value=row['title'], inline=False)
+        embed_message.add_field(name='', value=row['title'])
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

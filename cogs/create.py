@@ -23,7 +23,7 @@ class Create(commands.Cog):
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+ name +'** has been created', inline=False)
+    embed_message.add_field(name='', value='**'+ name +'** has been created')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='addfilm', description='Adds a film to the master list')
@@ -34,7 +34,7 @@ class Create(commands.Cog):
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list', inline=False)
+    embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='add', description='Adds a film to the specified list')
@@ -50,7 +50,7 @@ class Create(commands.Cog):
       listname, filmtitle 
     )
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**', inline=False)
+    embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**')
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
