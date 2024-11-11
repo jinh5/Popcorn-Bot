@@ -15,5 +15,15 @@ class Delete(commands.Cog):
   async def on_ready(self):
     print('delete.py is ready') 
 
+  '''
+  @app_commands.command(name='', description='')
+  async def (self, interaction: discord.Interaction):
+    await self.client.db.execute(
+    )
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='')
+    await interaction.response.send_message(embed=embed_message)
+  '''
+
 async def setup(client):
   await client.add_cog(Delete(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

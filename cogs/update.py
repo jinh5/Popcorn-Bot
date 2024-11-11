@@ -15,20 +15,11 @@ class Update(commands.Cog):
   async def on_ready(self):
     print('update.py is ready') 
 
-  '''
-  @app_commands.command(name='', description='')
-  async def (self, interaction: discord.Interaction):
-    await self.client.db.execute(
-    )
-    embed_message = discord.Embed()
-    embed_message.add_field(name='', value='')
-    await interaction.response.send_message(embed=embed_message)
-  '''
-
   @app_commands.command(name='editlistname', description='Edit the name of a list')
   async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):
     originalname_str = ''.join(originalname)
     newname_str = ''.join(newname)
+    
     await self.client.db.execute(
       '''
       UPDATE lists
@@ -37,6 +28,7 @@ class Update(commands.Cog):
       ''',
       newname_str, originalname_str
     )
+    
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originalname_str+'** has been renamed to **'+newname_str+'**')
     await interaction.response.send_message(embed=embed_message)
@@ -45,6 +37,7 @@ class Update(commands.Cog):
   async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
     originaltitle_str = ''.join(originaltitle)
     newtitle_str = ''.join(newtitle)
+    
     await self.client.db.execute(
     '''
       UPDATE films
@@ -53,6 +46,7 @@ class Update(commands.Cog):
       ''',
       newtitle_str, originaltitle_str
     )
+    
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originaltitle_str+'** has been renamed to **'+newtitle_str+'**')
     await interaction.response.send_message(embed=embed_message)
