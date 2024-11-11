@@ -82,5 +82,24 @@ class Read(commands.Cog):
         embed_message.add_field(name='', value=row['title'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
+  @app_commands.command(name='watchstatus', description='See if a film has been watched')
+  async def watchstatus(self, interaction: discord.Interaction, filmtitle: str):
+    data = await self.client.db.fetch(
+      '''
+      SELECT watch_status
+      FROM films
+      WHERE title=($1)
+      ''',
+      filmtitle
+    )
+
+    embed_message = discord.Embed()
+
+    if data[0]['watch_status']==False:
+      embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
+    elif data[0]['watch_status']==True:
+      embed_message.add_field(name='', value='**'+filmtitle+'** has been watched')
+    await interaction.response.send_message(embed=embed_message)
+
 async def setup(client):
   await client.add_cog(Read(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
