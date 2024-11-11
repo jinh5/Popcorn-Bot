@@ -30,7 +30,7 @@ class Read(commands.Cog):
     else:
       embed_message = discord.Embed(title='Lists')
       for row in data:
-        embed_message.add_field(name='', value=row['list_name'])
+        embed_message.add_field(name='', value=row['list_name'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
@@ -51,11 +51,35 @@ class Read(commands.Cog):
     
     embed_message = discord.Embed()
     embed_message = discord.Embed(title=listname)
+
     if len(data)==0:
       embed_message.add_field(name='', value='No entries in this list')
     else:
       for row in data:
-        embed_message.add_field(name='', value=row['title'])
+        embed_message.add_field(name='', value=row['title'], inline=False)
+    await interaction.response.send_message(embed=embed_message)
+
+  @app_commands.command(name='viewuncategorized', description='View all films that are not in lists')
+  async def viewuncategorized(self, interaction: discord.Interaction):
+    data = await self.client.db.fetch(
+      '''
+      SELECT title 
+      FROM films 
+      WHERE NOT EXISTS (
+        SELECT 
+        FROM lists_films
+        WHERE film_id = films.film_id
+      );
+      ''')
+
+    embed_message = discord.Embed()
+
+    if len(data)==0:
+      embed_message.add_field(name='', value='There are no uncategorized films')
+    else:
+      embed_message = discord.Embed(title='Uncategorized')
+      for row in data:
+        embed_message.add_field(name='', value=row['title'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
