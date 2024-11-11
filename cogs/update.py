@@ -16,27 +16,25 @@ class Update(commands.Cog):
     print('update.py is ready') 
 
   @app_commands.command(name='editlistname', description='Edit the name of a list')
-  async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):
-    originalname_str = ''.join(originalname)
-    newname_str = ''.join(newname)
-    
+  async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):   
+    #check if name exists in lists before update 
+
     await self.client.db.execute(
       '''
       UPDATE lists
       SET list_name = ($1)
       WHERE list_name = ($2)
       ''',
-      newname_str, originalname_str
+      newname, originalname
     )
     
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+originalname_str+'** has been renamed to **'+newname_str+'**')
+    embed_message.add_field(name='', value='**'+originalname+'** has been renamed to **'+newname+'**')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
   async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
-    originaltitle_str = ''.join(originaltitle)
-    newtitle_str = ''.join(newtitle)
+    #check if title exists in films before update 
     
     await self.client.db.execute(
     '''
@@ -44,11 +42,11 @@ class Update(commands.Cog):
       SET title = ($1)
       WHERE title = ($2)
       ''',
-      newtitle_str, originaltitle_str
+      newtitle, originaltitle
     )
     
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+originaltitle_str+'** has been renamed to **'+newtitle_str+'**')
+    embed_message.add_field(name='', value='**'+originaltitle+'** has been renamed to **'+newtitle+'**')
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

@@ -17,35 +17,28 @@ class Create(commands.Cog):
 
   @app_commands.command(name='createlist', description='Create a new list')
   async def createlist(self, interaction: discord.Interaction, name: str):
-    name_str = ''.join(name)
-
     await self.client.db.execute(
       'INSERT INTO lists(list_name) VALUES ($1)',
-      name_str
+      name
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+ name_str +'** has been created', inline=False)
+    embed_message.add_field(name='', value='**'+ name +'** has been created', inline=False)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='addfilm', description='Adds a film to the master list')
-  async def add(self, interaction: discord.Interaction, title: str):
-    title_str = ''.join(title)
-
+  async def addfilm(self, interaction: discord.Interaction, title: str):
     await self.client.db.execute(
       'INSERT INTO films(title) VALUES ($1)',
-      title_str
+      title
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+ title_str +'** has been added to the film master list', inline=False)
+    embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list', inline=False)
     await interaction.response.send_message(embed=embed_message)
 
-  @app_commands.command(name='addfilmtolist', description='Adds a film to the specified list')
-  async def addfilmtolist(self, interaction: discord.Interaction, filmtitle: str, listname: str):
-    filmtitle_str = ''.join(filmtitle)
-    listname_str = ''.join(listname)
-
+  @app_commands.command(name='add', description='Adds a film to the specified list')
+  async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
     await self.client.db.execute(
       '''
       INSERT INTO lists_films(list_id, film_id)
@@ -54,10 +47,10 @@ class Create(commands.Cog):
         (SELECT film_id FROM films WHERE title=($2))
       )
       ''',
-      listname_str, filmtitle_str 
+      listname, filmtitle 
     )
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+filmtitle_str+'** has been added to **'+listname_str+'**', inline=False)
+    embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**', inline=False)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

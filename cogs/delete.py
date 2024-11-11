@@ -27,33 +27,46 @@ class Delete(commands.Cog):
 
   @app_commands.command(name='deletelist', description='Delete the specified list')
   async def deletelist(self, interaction: discord.Interaction, name: str):
-    name_str = ''.join(name)
-    
+    #check if list exists before deleting
     await self.client.db.execute(
       '''
       DELETE FROM lists WHERE list_name = ($1)
       ''',
-      name_str
+      name
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='Deleted **'+ name_str +'**')
+    embed_message.add_field(name='', value='Deleted **'+ name +'**')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='deletefilm', description='Delete the specified film')
   async def deletefilm(self, interaction: discord.Interaction, title: str):
-    title_str = ''.join(title)
-    
+    #check if title exists before deleting
     await self.client.db.execute(
       '''
       DELETE FROM films WHERE title = ($1)
       ''',
-      title_str
+      title
     )
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='Deleted **'+ title_str +'**')
+    embed_message.add_field(name='', value='Deleted **'+ title +'**')
     await interaction.response.send_message(embed=embed_message)
+
+  # @app_commands.command(name='delete', description='Delete a film from the specified list')
+  # async def delete(self, interaction: discord.Interaction, filmtitle: str, listname: str):
+  #   filmtitle_str = ''.join(filmtitle)
+  #   listname_str = ''.join(listname)
+    
+  #   await self.client.db.execute(
+  #     '''
+  #     DELETE FROM films WHERE title = ($1)
+  #     ''',
+  #   )
+
+  #   embed_message = discord.Embed()
+  #   embed_message.add_field(name='', value='Deleted **'+  +'**')
+  #   await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
   await client.add_cog(Delete(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

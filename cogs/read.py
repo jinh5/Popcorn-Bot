@@ -34,9 +34,8 @@ class Read(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
+  #check if list exists first
   async def viewlist(self, interaction: discord.Interaction, listname: str):
-    listname_str = ''.join(listname)
-
     data = await self.client.db.fetch(
       '''
       SELECT title
@@ -47,11 +46,11 @@ class Read(commands.Cog):
         WHERE list_name = ($1)
       );
       ''',
-      listname_str
+      listname
     )
     
     embed_message = discord.Embed()
-    embed_message = discord.Embed(title=listname_str)
+    embed_message = discord.Embed(title=listname)
     if len(data)==0:
       embed_message.add_field(name='', value='No entries in this list', inline=False)
     else:
