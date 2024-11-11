@@ -30,7 +30,7 @@ class Delete(commands.Cog):
     #check if list exists before deleting
     await self.client.db.execute(
       '''
-      DELETE FROM lists WHERE list_name = ($1)
+      DELETE FROM lists WHERE list_name = ($1);
       ''',
       name
     )
@@ -44,7 +44,7 @@ class Delete(commands.Cog):
     #check if title exists before deleting
     await self.client.db.execute(
       '''
-      DELETE FROM films WHERE title = ($1)
+      DELETE FROM films WHERE title = ($1);
       ''',
       title
     )
@@ -53,20 +53,22 @@ class Delete(commands.Cog):
     embed_message.add_field(name='', value='Deleted **'+ title +'**')
     await interaction.response.send_message(embed=embed_message)
 
-  # @app_commands.command(name='delete', description='Delete a film from the specified list')
-  # async def delete(self, interaction: discord.Interaction, filmtitle: str, listname: str):
-  #   filmtitle_str = ''.join(filmtitle)
-  #   listname_str = ''.join(listname)
-    
-  #   await self.client.db.execute(
-  #     '''
-  #     DELETE FROM films WHERE title = ($1)
-  #     ''',
-  #   )
+  @app_commands.command(name='delete', description='Delete a film from the specified list')
+  async def delete(self, interaction: discord.Interaction, filmtitle: str, listname: str):
+    #check if film exists
+    #check if list exists
+    await self.client.db.execute(
+      '''
+      DELETE FROM lists_films 
+      WHERE film_id = (SELECT film_id FROM films WHERE title=($1))
+        AND list_id = (SELECT list_id FROM lists WHERE list_name=($2));
+      ''',
+      filmtitle, listname
+    )
 
-  #   embed_message = discord.Embed()
-  #   embed_message.add_field(name='', value='Deleted **'+  +'**')
-  #   await interaction.response.send_message(embed=embed_message)
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='Deleted **'+filmtitle+'** from **'+listname+'**')
+    await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
   await client.add_cog(Delete(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

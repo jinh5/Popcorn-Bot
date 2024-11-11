@@ -18,7 +18,7 @@ class Create(commands.Cog):
   @app_commands.command(name='createlist', description='Create a new list')
   async def createlist(self, interaction: discord.Interaction, name: str):
     await self.client.db.execute(
-      'INSERT INTO lists(list_name) VALUES ($1)',
+      'INSERT INTO lists(list_name) VALUES ($1);',
       name
     )
 
@@ -29,7 +29,7 @@ class Create(commands.Cog):
   @app_commands.command(name='addfilm', description='Adds a film to the master list')
   async def addfilm(self, interaction: discord.Interaction, title: str):
     await self.client.db.execute(
-      'INSERT INTO films(title) VALUES ($1)',
+      'INSERT INTO films(title) VALUES ($1);',
       title
     )
 
@@ -39,13 +39,15 @@ class Create(commands.Cog):
 
   @app_commands.command(name='add', description='Adds a film to the specified list')
   async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
+    #check if list exists
+    #insert film before adding to list
     await self.client.db.execute(
       '''
       INSERT INTO lists_films(list_id, film_id)
       VALUES (
         (SELECT list_id FROM lists WHERE list_name=($1)),
         (SELECT film_id FROM films WHERE title=($2))
-      )
+      );
       ''',
       listname, filmtitle 
     )

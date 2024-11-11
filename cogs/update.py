@@ -23,7 +23,7 @@ class Update(commands.Cog):
       '''
       UPDATE lists
       SET list_name = ($1)
-      WHERE list_name = ($2)
+      WHERE list_name = ($2);
       ''',
       newname, originalname
     )
@@ -40,7 +40,7 @@ class Update(commands.Cog):
     '''
       UPDATE films
       SET title = ($1)
-      WHERE title = ($2)
+      WHERE title = ($2);
       ''',
       newtitle, originaltitle
     )
