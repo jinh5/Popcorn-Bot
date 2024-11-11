@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS films(
 
 CREATE TABLE IF NOT EXISTS lists_films(
   list_id INT,
+  film_id INT,
   CONSTRAINT fk_list
     FOREIGN KEY (list_id)
       REFERENCES lists(list_id)
         ON DELETE CASCADE,
-  film_id INT,
   CONSTRAINT fk_film
     FOREIGN KEY (film_id)
       REFERENCES films(film_id)

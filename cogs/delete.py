@@ -40,5 +40,20 @@ class Delete(commands.Cog):
     embed_message.add_field(name='', value='Deleted **'+ name_str +'**')
     await interaction.response.send_message(embed=embed_message)
 
+  @app_commands.command(name='deletefilm', description='Delete the specified film')
+  async def deletefilm(self, interaction: discord.Interaction, title: str):
+    title_str = ''.join(title)
+    
+    await self.client.db.execute(
+      '''
+      DELETE FROM films WHERE title = ($1)
+      ''',
+      title_str
+    )
+
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='Deleted **'+ title_str +'**')
+    await interaction.response.send_message(embed=embed_message)
+
 async def setup(client):
   await client.add_cog(Delete(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

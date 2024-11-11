@@ -31,6 +31,7 @@ class Misc(commands.Cog):
     embed_message.add_field(name='editlistname [original name] [new name]', value='Edit the name of a list', inline=False)
     embed_message.add_field(name='editfilmtitle [original title] [new title]', value='Edit the title of a film', inline=False)
     embed_message.add_field(name='deletelist [name]', value='Delete the specified list', inline=False)
+    embed_message.add_field(name='deletefilm [title]', value='Delete the specified film', inline=False)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
