@@ -15,25 +15,13 @@ class Delete(commands.Cog):
   async def on_ready(self):
     print('delete.py is ready') 
 
-  '''
-  @app_commands.command(name='', description='')
-  async def (self, interaction: discord.Interaction):
-    await self.client.db.execute(
-    )
-    embed_message = discord.Embed()
-    embed_message.add_field(name='', value='')
-    await interaction.response.send_message(embed=embed_message)
-  '''
-
   @app_commands.command(name='deletelist', description='Delete the specified list')
   async def deletelist(self, interaction: discord.Interaction, name: str):
     #check if list exists before deleting
-    await self.client.db.execute(
-      '''
-      DELETE FROM lists WHERE list_name = ($1);
-      ''',
-      name
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute('DELETE FROM lists WHERE list_name = ($1);', name)
+    await self.client.db.release(connection)
 
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='Deleted **'+ name +'**')
@@ -42,12 +30,10 @@ class Delete(commands.Cog):
   @app_commands.command(name='deletefilm', description='Delete the specified film')
   async def deletefilm(self, interaction: discord.Interaction, title: str):
     #check if title exists before deleting
-    await self.client.db.execute(
-      '''
-      DELETE FROM films WHERE title = ($1);
-      ''',
-      title
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute('DELETE FROM films WHERE title = ($1);', title)
+    await self.client.db.release(connection)
 
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='Deleted **'+ title +'**')
@@ -57,14 +43,17 @@ class Delete(commands.Cog):
   async def delete(self, interaction: discord.Interaction, filmtitle: str, listname: str):
     #check if film exists
     #check if list exists
-    await self.client.db.execute(
-      '''
-      DELETE FROM lists_films 
-      WHERE film_id = (SELECT film_id FROM films WHERE title=($1))
-        AND list_id = (SELECT list_id FROM lists WHERE list_name=($2));
-      ''',
-      filmtitle, listname
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute(
+        '''
+        DELETE FROM lists_films 
+        WHERE film_id = (SELECT film_id FROM films WHERE title=($1))
+          AND list_id = (SELECT list_id FROM lists WHERE list_name=($2));
+        ''',
+        filmtitle, listname
+      )
+    await self.client.db.release(connection)
 
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='Deleted **'+filmtitle+'** from **'+listname+'**')

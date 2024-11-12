@@ -18,15 +18,10 @@ class Update(commands.Cog):
   @app_commands.command(name='editlistname', description='Edit the name of a list')
   async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):   
     #check if name exists in lists before update 
-
-    await self.client.db.execute(
-      '''
-      UPDATE lists
-      SET list_name = ($1)
-      WHERE list_name = ($2);
-      ''',
-      newname, originalname
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute('UPDATE lists SET list_name = ($1) WHERE list_name = ($2);', newname, originalname)
+    await self.client.db.release(connection)
     
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originalname+'** has been renamed to **'+newname+'**')
@@ -35,15 +30,10 @@ class Update(commands.Cog):
   @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
   async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
     #check if title exists in films before update 
-    
-    await self.client.db.execute(
-      '''
-      UPDATE films
-      SET title = ($1)
-      WHERE title = ($2);
-      ''',
-      newtitle, originaltitle
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute('UPDATE films SET title = ($1) WHERE title = ($2);', newtitle, originaltitle)
+    await self.client.db.release(connection)
     
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originaltitle+'** has been renamed to **'+newtitle+'**')
@@ -52,14 +42,11 @@ class Update(commands.Cog):
   @app_commands.command(name='changewatchstatus', description='Mark the watch status of a film from not watched to watched and vice versa')
   async def changewatchstatus(self, interaction: discord.Interaction, filmtitle: str):
     #check if film exists
-    await self.client.db.execute(
-      '''
-      UPDATE films 
-      SET watch_status = NOT watch_status 
-      WHERE title=($1);
-      ''',
-      filmtitle
-    )
+    connection = await self.client.db.acquire()
+    async with connection.transaction():
+      await self.client.db.execute('UPDATE films SET watch_status = NOT watch_status WHERE title=($1);', filmtitle)
+    await self.client.db.release(connection)
+    
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='Watch status of **'+filmtitle+'** has been changed')
     await interaction.response.send_message(embed=embed_message)

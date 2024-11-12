@@ -16,12 +16,6 @@ class Misc(commands.Cog):
 
   @commands.command()
   async def sync(self, ctx):
-    # print('ok')
-    # for command in ctx.bot.tree.get_commands(guild=None):
-    #   await ctx.bot.tree.remove_command(command.name, guild=None)
-    #   print(command)
-    # await ctx.bot.tree.sync()
-    # print('done')
     fmt = await ctx.bot.tree.sync(guild=ctx.guild)
     await ctx.send(f'Synced {len(fmt)} command(s)')
 
