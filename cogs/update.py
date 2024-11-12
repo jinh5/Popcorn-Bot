@@ -56,7 +56,7 @@ class Update(commands.Cog):
       '''
       UPDATE films 
       SET watch_status = NOT watch_status 
-      WHERE title=($1)
+      WHERE title=($1);
       ''',
       filmtitle
     )
