@@ -37,7 +37,7 @@ class Update(commands.Cog):
     #check if title exists in films before update 
     
     await self.client.db.execute(
-    '''
+      '''
       UPDATE films
       SET title = ($1)
       WHERE title = ($2);
@@ -47,6 +47,21 @@ class Update(commands.Cog):
     
     embed_message = discord.Embed()
     embed_message.add_field(name='', value='**'+originaltitle+'** has been renamed to **'+newtitle+'**')
+    await interaction.response.send_message(embed=embed_message)
+
+  @app_commands.command(name='changewatchstatus', description='Mark the watch status of a film from not watched to watched and vice versa')
+  async def changewatchstatus(self, interaction: discord.Interaction, filmtitle: str):
+    #check if film exists
+    await self.client.db.execute(
+      '''
+      UPDATE films 
+      SET watch_status = NOT watch_status 
+      WHERE title=($1)
+      ''',
+      filmtitle
+    )
+    embed_message = discord.Embed()
+    embed_message.add_field(name='', value='Watch status of **'+filmtitle+'** has been changed')
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

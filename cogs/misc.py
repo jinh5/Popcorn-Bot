@@ -16,6 +16,12 @@ class Misc(commands.Cog):
 
   @commands.command()
   async def sync(self, ctx):
+    # print('ok')
+    # for command in ctx.bot.tree.get_commands(guild=None):
+    #   await ctx.bot.tree.remove_command(command.name, guild=None)
+    #   print(command)
+    # await ctx.bot.tree.sync()
+    # print('done')
     fmt = await ctx.bot.tree.sync(guild=ctx.guild)
     await ctx.send(f'Synced {len(fmt)} command(s)')
 
@@ -29,9 +35,10 @@ class Misc(commands.Cog):
     embed_message.add_field(name='viewlists', value='View all the lists that have been created', inline=False)
     embed_message.add_field(name='viewlist [list name]', value='View all films in the specified list', inline=False)
     embed_message.add_field(name='viewuncategorized', value='View all films that are not in lists', inline=False)
-    embed_message.add_field(name='watchstatus', value='See if a film has been watched', inline=False)
+    embed_message.add_field(name='watchstatus [film title]', value='See if a film has been watched', inline=False)
     embed_message.add_field(name='editlistname [original name] [new name]', value='Edit the name of a list', inline=False)
     embed_message.add_field(name='editfilmtitle [original title] [new title]', value='Edit the title of a film', inline=False)
+    embed_message.add_field(name='changewatchstatus [film title]', value='Mark the watch status of a film from not watched to watched and vice versa', inline=False)
     embed_message.add_field(name='deletelist [name]', value='Delete the specified list', inline=False)
     embed_message.add_field(name='deletefilm [title]', value='Delete the specified film', inline=False)
     embed_message.add_field(name='delete [film title] [list name]', value='Delete a film from the specified list', inline=False)

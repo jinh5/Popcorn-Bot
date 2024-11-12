@@ -51,7 +51,6 @@ class Read(commands.Cog):
     
     embed_message = discord.Embed()
     embed_message = discord.Embed(title=listname)
-
     if len(data)==0:
       embed_message.add_field(name='', value='No entries in this list')
     else:
@@ -73,7 +72,6 @@ class Read(commands.Cog):
       ''')
 
     embed_message = discord.Embed()
-
     if len(data)==0:
       embed_message.add_field(name='', value='There are no uncategorized films')
     else:
@@ -88,13 +86,12 @@ class Read(commands.Cog):
       '''
       SELECT watch_status
       FROM films
-      WHERE title=($1)
+      WHERE title=($1);
       ''',
       filmtitle
     )
 
     embed_message = discord.Embed()
-
     if data[0]['watch_status']==False:
       embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
     elif data[0]['watch_status']==True:
