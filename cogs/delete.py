@@ -24,7 +24,7 @@ class Delete(commands.Cog):
     await self.client.db.release(connection)
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='Deleted **'+ name +'**')
+    embed_message.add_field(name='', value='Deleted **'+ name +'** list')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='deletefilm', description='Delete the specified film')
@@ -36,7 +36,7 @@ class Delete(commands.Cog):
     await self.client.db.release(connection)
 
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='Deleted **'+ title +'**')
+    embed_message.add_field(name='', value='Deleted **'+ title +'** from film master list')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='delete', description='Delete a film from the specified list')
