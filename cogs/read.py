@@ -1,5 +1,6 @@
 import discord
 import os
+import asyncpg
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
@@ -33,32 +34,51 @@ class Read(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
-  #check if list exists first
   async def viewlist(self, interaction: discord.Interaction, listname: str):
-    data = None
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      data = await self.client.db.fetch(
+    embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      try:
+        check = await connection.fetchrow(
         '''
-        SELECT title
-        FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
-        WHERE lists_films.list_id = (
-          SELECT list_id
-          FROM lists
-          WHERE list_name = ($1)
+        SELECT EXISTS(
+          SELECT 1 
+          FROM lists 
+          WHERE list_name=($1)
         );
         ''',
-        listname  
-      )
-    await self.client.db.release(connection)
-    
-    embed_message = discord.Embed()
-    embed_message = discord.Embed(title=listname)
-    if len(data)==0:
-      embed_message.add_field(name='', value='No entries in this list')
-    else:
-      for row in data:
-        embed_message.add_field(name='', value=row['title'], inline=False)
+        listname)
+        if check['exists'] == False:
+          embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
+          await interaction.response.send_message(embed=embed_message)
+          await connection.reset()
+          await self.client.db.release(connection)
+          return
+      except asyncpg.PostgresError as e:
+        embed_message.add_field(name='ERROR', value=e)
+      try:
+        data = await connection.fetch(
+          '''
+          SELECT title
+          FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+          WHERE lists_films.list_id = (
+            SELECT list_id
+            FROM lists
+            WHERE list_name = ($1)
+          );
+          ''',
+          listname  
+        )
+        embed_message = discord.Embed(title=listname)
+        if len(data)==0:
+          embed_message.add_field(name='', value='No entries in this list')
+        else:
+          for row in data:
+            embed_message.add_field(name='', value=row['title'], inline=False)
+      except asyncpg.PostgresError as e:
+        embed_message.add_field(name='ERROR', value=e)
+      finally:
+        await connection.reset()
+        await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewuncategorized', description='View all films that are not in lists')

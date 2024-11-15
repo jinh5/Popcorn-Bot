@@ -24,10 +24,11 @@ class Create(commands.Cog):
         await connection.execute('INSERT INTO lists(list_name) VALUES ($1);', name)
         embed_message.add_field(name='', value='**'+ name +'** has been created')
       except asyncpg.UniqueViolationError:
-        embed_message.add_field(name='ERROR', value=name+' list already exists!')
+        embed_message.add_field(name='ERROR', value='**'+name+'** list already exists!')
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
       finally:
+        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
@@ -35,14 +36,16 @@ class Create(commands.Cog):
   async def addfilm(self, interaction: discord.Interaction, title: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
+      await connection.reset()
       try:
-        await self.client.db.execute('INSERT INTO films(title) VALUES ($1);', title)
+        await connection.execute('INSERT INTO films(title) VALUES ($1);', title)
         embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
       except asyncpg.UniqueViolationError:
-        embed_message.add_field(name='ERROR', value=title+' already exists in the film master list!')
+        embed_message.add_field(name='ERROR', value='**'+title+'** already exists in the film master list!')
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
       finally:
+        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
@@ -50,8 +53,9 @@ class Create(commands.Cog):
   async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
+      await connection.reset()
       try:
-        await self.client.db.execute(
+        await connection.execute(
           '''
           INSERT INTO films(title)
           SELECT ($1)
@@ -62,7 +66,7 @@ class Create(commands.Cog):
           ''',
           filmtitle, filmtitle
         )
-        await self.client.db.execute(
+        await connection.execute(
           '''
           INSERT INTO lists_films(list_id, film_id)
           VALUES (
@@ -80,6 +84,7 @@ class Create(commands.Cog):
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
       finally:
+        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
