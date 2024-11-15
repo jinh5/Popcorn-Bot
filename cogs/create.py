@@ -25,8 +25,6 @@ class Create(commands.Cog):
         embed_message.add_field(name='', value='**'+ name +'** has been created')
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+name+'** list already exists!')
-      except asyncpg.PostgresError as e:
-        embed_message.add_field(name='ERROR', value=e)
       finally:
         await connection.reset()
         await self.client.db.release(connection)
@@ -41,8 +39,6 @@ class Create(commands.Cog):
         embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+title+'** already exists in the film master list!')
-      except asyncpg.PostgresError as e:
-        embed_message.add_field(name='ERROR', value=e)
       finally:
         await connection.reset()
         await self.client.db.release(connection)
@@ -79,8 +75,6 @@ class Create(commands.Cog):
         embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+filmtitle+'** is already in **'+listname+'** list!')
-      except asyncpg.PostgresError as e:
-        embed_message.add_field(name='ERROR', value=e)
       finally:
         await connection.reset()
         await self.client.db.release(connection)

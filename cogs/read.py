@@ -34,7 +34,7 @@ class Read(commands.Cog):
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
-  async def viewlist(self, interaction: discord.Interaction, listname: str):
+  async def viewlist(self, interaction: discord.Interaction, name: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
       try:
@@ -46,9 +46,9 @@ class Read(commands.Cog):
           WHERE list_name=($1)
         );
         ''',
-        listname)
+        name)
         if check['exists'] == False:
-          embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
+          embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
           await interaction.response.send_message(embed=embed_message)
           await connection.reset()
           await self.client.db.release(connection)
@@ -66,9 +66,9 @@ class Read(commands.Cog):
             WHERE list_name = ($1)
           );
           ''',
-          listname  
+          name  
         )
-        embed_message = discord.Embed(title=listname)
+        embed_message = discord.Embed(title=name)
         if len(data)==0:
           embed_message.add_field(name='', value='No entries in this list')
         else:
