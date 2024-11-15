@@ -50,7 +50,7 @@ class Read(commands.Cog):
         if check['exists'] == False:
           embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
           await interaction.response.send_message(embed=embed_message)
-          await connection.reset()
+
           await self.client.db.release(connection)
           return
       except asyncpg.PostgresError as e:
@@ -77,7 +77,6 @@ class Read(commands.Cog):
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
       finally:
-        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 

@@ -26,7 +26,6 @@ class Create(commands.Cog):
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+name+'** list already exists!')
       finally:
-        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
@@ -40,7 +39,6 @@ class Create(commands.Cog):
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+title+'** already exists in the film master list!')
       finally:
-        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
@@ -76,7 +74,6 @@ class Create(commands.Cog):
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+filmtitle+'** is already in **'+listname+'** list!')
       finally:
-        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
