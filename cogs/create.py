@@ -36,7 +36,6 @@ class Create(commands.Cog):
   async def addfilm(self, interaction: discord.Interaction, title: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
-      await connection.reset()
       try:
         await connection.execute('INSERT INTO films(title) VALUES ($1);', title)
         embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
@@ -53,7 +52,6 @@ class Create(commands.Cog):
   async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
-      await connection.reset()
       try:
         await connection.execute(
           '''
@@ -76,7 +74,7 @@ class Create(commands.Cog):
           ''',
           listname, filmtitle 
         )
-        embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**')
+        embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'** list')
       except asyncpg.NotNullViolationError:
         embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
       except asyncpg.UniqueViolationError:
