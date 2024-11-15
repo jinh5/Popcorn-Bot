@@ -15,11 +15,6 @@ class Misc(commands.Cog):
     print('misc.py is ready')
 
   @commands.command()
-  async def clearcommands(self, ctx):
-    await ctx.bot.tree.clear_commands(guild=ctx.guild)
-    await ctx.send('Cleared command(s)')
-
-  @commands.command()
   async def sync(self, ctx):
     fmt = await ctx.bot.tree.sync(guild=ctx.guild)
     await ctx.send(f'Synced {len(fmt)} command(s)')

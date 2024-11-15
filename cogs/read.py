@@ -50,12 +50,9 @@ class Read(commands.Cog):
         if check['exists'] == False:
           embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
           await interaction.response.send_message(embed=embed_message)
-
           await self.client.db.release(connection)
           return
-      except asyncpg.PostgresError as e:
-        embed_message.add_field(name='ERROR', value=e)
-      try:
+        
         data = await connection.fetch(
           '''
           SELECT title
@@ -74,9 +71,8 @@ class Read(commands.Cog):
         else:
           for row in data:
             embed_message.add_field(name='', value=row['title'], inline=False)
-      except asyncpg.PostgresError as e:
-        embed_message.add_field(name='ERROR', value=e)
       finally:
+        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
