@@ -77,10 +77,10 @@ class Create(commands.Cog):
         embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+filmtitle+'** is already in **'+listname+'** list!')
+      except asyncpg.PostgresError as e:
+        embed_message.add_field(name='ERROR', value=e)
       finally:
         await self.client.db.release(connection)
-
-    
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

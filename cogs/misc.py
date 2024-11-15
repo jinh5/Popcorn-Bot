@@ -21,7 +21,7 @@ class Misc(commands.Cog):
 
   @app_commands.command(name='help')
   async def help(self, interaction: discord.Interaction):
-    embed_message = discord.Embed(title='Help Desk for Popcorn Bot', description='List of all commands for Popcorn Bot. Note: all film entries will be added to a master list of all films.')
+    embed_message = discord.Embed(title='Help Desk for Popcorn Bot', description='List of all commands for Popcorn Bot. Note: all film entries will be added to a master list of films.')
     embed_message.add_field(name='', value='', inline=False)
     embed_message.add_field(name='createlist [name]', value='Create a new list', inline=False)
     embed_message.add_field(name='addfilm [title]', value='Adds a film to the master list', inline=False)
