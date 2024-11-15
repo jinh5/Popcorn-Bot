@@ -18,12 +18,9 @@ class Read(commands.Cog):
 
   @app_commands.command(name='viewlists', description='View all the lists that have been created')
   async def viewlists(self, interaction: discord.Interaction):
-    data = None
     connection = await self.client.db.acquire()
-    async with connection.transaction():
-      data = await self.client.db.fetch('SELECT list_name FROM lists;')
+    data = await connection.fetch('SELECT list_name FROM lists;')
     await self.client.db.release(connection)
-
     embed_message = discord.Embed()
     if len(data)==0:
       embed_message.add_field(name='', value='No lists have been created')
@@ -52,7 +49,6 @@ class Read(commands.Cog):
           await interaction.response.send_message(embed=embed_message)
           await self.client.db.release(connection)
           return
-        
         data = await connection.fetch(
           '''
           SELECT title
@@ -72,28 +68,24 @@ class Read(commands.Cog):
           for row in data:
             embed_message.add_field(name='', value=row['title'], inline=False)
       finally:
-        await connection.reset()
         await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewuncategorized', description='View all films that are not in lists')
   async def viewuncategorized(self, interaction: discord.Interaction):
-    data = None
     connection = await self.client.db.acquire()
-    async with connection.transaction():
-      data = await self.client.db.fetch(
-        '''
-        SELECT title 
-        FROM films 
-        WHERE NOT EXISTS (
-          SELECT 
-          FROM lists_films
-          WHERE film_id = films.film_id
-        );
-        '''
-      )
+    data = await connection.fetch(
+      '''
+      SELECT title 
+      FROM films 
+      WHERE NOT EXISTS (
+        SELECT 
+        FROM lists_films
+        WHERE film_id = films.film_id
+      );
+      '''
+    )
     await self.client.db.release(connection)
-
     embed_message = discord.Embed()
     if len(data)==0:
       embed_message.add_field(name='', value='There are no uncategorized films')
@@ -105,17 +97,20 @@ class Read(commands.Cog):
 
   @app_commands.command(name='watchstatus', description='See if a film has been watched')
   async def watchstatus(self, interaction: discord.Interaction, filmtitle: str):
-    data = None
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      data = await self.client.db.fetch('SELECT watch_status FROM films WHERE title=($1);', filmtitle)
-    await self.client.db.release(connection)
-
     embed_message = discord.Embed()
-    if data[0]['watch_status']==False:
-      embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
-    elif data[0]['watch_status']==True:
-      embed_message.add_field(name='', value='**'+filmtitle+'** has been watched')
+    async with self.client.db.acquire() as connection:
+      try:
+        data = await self.client.db.fetch('SELECT watch_status FROM films WHERE title=($1);', filmtitle)
+        embed_message = discord.Embed()
+        if data[0]['watch_status']==False:
+          embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
+        elif data[0]['watch_status']==True:
+          embed_message.add_field(name='', value='**'+filmtitle+'** has been watched')
+        await interaction.response.send_message(embed=embed_message)
+      except IndexError:
+        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist!')
+      finally:
+        await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
