@@ -33,18 +33,21 @@ class Create(commands.Cog):
 
   @app_commands.command(name='addfilm', description='Adds a film to the master list')
   async def addfilm(self, interaction: discord.Interaction, title: str):
-    async with self.client.db.acquire() as connection:
-      async with connection.transaction():
-        await self.client.db.execute('INSERT INTO films(title) VALUES ($1);', title)
-      await self.client.db.release(connection)
-
     embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
+    async with self.client.db.acquire() as connection:
+      try:
+        await self.client.db.execute('INSERT INTO films(title) VALUES ($1);', title)
+        embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
+      except asyncpg.UniqueViolationError as e:
+        embed_message.add_field(name='ERROR', value=title+' already exists in the film master list!')
+      except asyncpg.PostgresError as e:
+        embed_message.add_field(name='ERROR', value=e)
+      finally:
+        await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='add', description='Adds a film to the specified list')
   async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
-    #check if list exists
     async with self.client.db.acquire() as connection:
       async with connection.transaction():
         await self.client.db.execute(
