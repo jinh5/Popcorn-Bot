@@ -23,7 +23,7 @@ class Create(commands.Cog):
       try:
         await connection.execute('INSERT INTO lists(list_name) VALUES ($1);', name)
         embed_message.add_field(name='', value='**'+ name +'** has been created')
-      except asyncpg.UniqueViolationError as e:
+      except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value=name+' list already exists!')
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
@@ -38,7 +38,7 @@ class Create(commands.Cog):
       try:
         await self.client.db.execute('INSERT INTO films(title) VALUES ($1);', title)
         embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
-      except asyncpg.UniqueViolationError as e:
+      except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value=title+' already exists in the film master list!')
       except asyncpg.PostgresError as e:
         embed_message.add_field(name='ERROR', value=e)
@@ -48,8 +48,9 @@ class Create(commands.Cog):
 
   @app_commands.command(name='add', description='Adds a film to the specified list')
   async def add(self, interaction: discord.Interaction, filmtitle: str, listname: str):
+    embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
-      async with connection.transaction():
+      try:
         await self.client.db.execute(
           '''
           INSERT INTO films(title)
@@ -61,7 +62,6 @@ class Create(commands.Cog):
           ''',
           filmtitle, filmtitle
         )
-
         await self.client.db.execute(
           '''
           INSERT INTO lists_films(list_id, film_id)
@@ -72,10 +72,15 @@ class Create(commands.Cog):
           ''',
           listname, filmtitle 
         )
-      await self.client.db.release(connection)
+        embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**')
+      except asyncpg.NotNullViolationError:
+        embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
+      except asyncpg.UniqueViolationError:
+        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** is already in **'+listname+'** list!')
+      finally:
+        await self.client.db.release(connection)
 
-    embed_message = discord.Embed()
-    embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'**')
+    
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):
