@@ -17,25 +17,47 @@ class Delete(commands.Cog):
 
   @app_commands.command(name='deletelist', description='Delete the specified list')
   async def deletelist(self, interaction: discord.Interaction, name: str):
-    #check if list exists before deleting
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute('DELETE FROM lists WHERE list_name = ($1);', name)
-    await self.client.db.release(connection)
-
     embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM lists 
+        WHERE list_name=($1)
+      );
+      ''',
+      name)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      await connection.execute('DELETE FROM lists WHERE list_name = ($1);', name)
+    await self.client.db.release(connection)
     embed_message.add_field(name='', value='Deleted **'+ name +'** list')
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='deletefilm', description='Delete the specified film')
   async def deletefilm(self, interaction: discord.Interaction, title: str):
-    #check if title exists before deleting
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute('DELETE FROM films WHERE title = ($1);', title)
-    await self.client.db.release(connection)
-
     embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM films
+        WHERE title=($1)
+      );
+      ''',
+      title)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+title+'** does not exist in film master list!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      await connection.execute('DELETE FROM films WHERE title = ($1);', title)
+    await self.client.db.release(connection)
     embed_message.add_field(name='', value='Deleted **'+ title +'** from film master list')
     await interaction.response.send_message(embed=embed_message)
 
