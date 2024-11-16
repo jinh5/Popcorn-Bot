@@ -14,7 +14,8 @@ async def main():
     database=os.getenv('DATABASE'),
     port=os.getenv('PORT'),
     user=os.getenv('USER'),
-    password=os.getenv('PASSWORD')
+    password=os.getenv('PASSWORD'),
+    statement_cache_size=0
   ) as pool:
       intents = discord.Intents.default()  
       intents.message_content = True
