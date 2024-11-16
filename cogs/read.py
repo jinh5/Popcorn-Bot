@@ -35,7 +35,7 @@ class Read(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM lists 
         WHERE list_name=($1)
       );

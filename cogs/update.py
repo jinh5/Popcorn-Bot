@@ -22,7 +22,7 @@ class Update(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM lists 
         WHERE list_name=($1)
       );
@@ -45,7 +45,7 @@ class Update(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM films
         WHERE title=($1)
       );
@@ -68,7 +68,7 @@ class Update(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM films
         WHERE title=($1)
       );

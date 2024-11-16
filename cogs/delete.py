@@ -22,7 +22,7 @@ class Delete(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM lists 
         WHERE list_name=($1)
       );
@@ -45,7 +45,7 @@ class Delete(commands.Cog):
       check = await connection.fetchrow(
       '''
       SELECT EXISTS(
-        SELECT 1 
+        SELECT 
         FROM films
         WHERE title=($1)
       );
@@ -63,11 +63,59 @@ class Delete(commands.Cog):
 
   @app_commands.command(name='delete', description='Delete a film from the specified list')
   async def delete(self, interaction: discord.Interaction, filmtitle: str, listname: str):
-    #check if film exists
-    #check if list exists
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute(
+    embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      checklist = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 
+        FROM lists 
+        WHERE list_name=($1)
+      );
+      ''',
+      listname)
+      checkfilm = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 
+        FROM films
+        WHERE title=($1)
+      );
+      ''',
+      filmtitle)
+      checkfilminlist = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT  
+        FROM lists_films
+        WHERE film_id = (SELECT film_id FROM films WHERE title=($1))
+          AND list_id = (SELECT list_id FROM lists WHERE list_name=($2))
+      );
+      ''',
+      filmtitle, listname)
+
+      if checklist['exists'] == False and checkfilm['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+listname+'** list and **'+filmtitle+'** film do not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      elif checklist['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      elif checkfilm['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist in film master list!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      elif checkfilminlist['exists']==False:
+        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist in **'+listname+'** list!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      
+      await connection.execute(
         '''
         DELETE FROM lists_films 
         WHERE film_id = (SELECT film_id FROM films WHERE title=($1))
@@ -76,8 +124,6 @@ class Delete(commands.Cog):
         filmtitle, listname
       )
     await self.client.db.release(connection)
-
-    embed_message = discord.Embed()
     embed_message.add_field(name='', value='Deleted **'+filmtitle+'** from **'+listname+'**')
     await interaction.response.send_message(embed=embed_message)
 
