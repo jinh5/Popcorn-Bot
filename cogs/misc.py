@@ -26,7 +26,7 @@ class Misc(commands.Cog):
     embed_message.add_field(name='createlist [name]', value='Create a new list', inline=False)
     embed_message.add_field(name='addfilm [title]', value='Adds a film to the master list', inline=False)
     embed_message.add_field(name='add [film title] [list name]', value='Add a film to the specified list', inline=False)
-    embed_message.add_field(name='viewlists', value='View all the lists that have been created', inline=False)
+    embed_message.add_field(name='viewalllists', value='View all the lists that have been created', inline=False)
     embed_message.add_field(name='viewlist [list name]', value='View all films in the specified list', inline=False)
     embed_message.add_field(name='viewuncategorized', value='View all films that are not in lists', inline=False)
     embed_message.add_field(name='watchstatus [film title]', value='See if a film has been watched', inline=False)
