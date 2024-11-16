@@ -19,27 +19,27 @@ class Create(commands.Cog):
   @app_commands.command(name='createlist', description='Create a new list')
   async def createlist(self, interaction: discord.Interaction, name: str):
     embed_message = discord.Embed()
-    async with self.client.db.acquire() as connection:
-      try:
-        await connection.execute('INSERT INTO lists(list_name) VALUES ($1);', name)
-        embed_message.add_field(name='', value='**'+ name +'** has been created')
-      except asyncpg.UniqueViolationError:
-        embed_message.add_field(name='ERROR', value='**'+name+'** list already exists!')
-      finally:
-        await self.client.db.release(connection)
+    connection = await self.client.db.acquire()
+    try:
+      await connection.execute('INSERT INTO lists(list_name) VALUES ($1);', name)
+      embed_message.add_field(name='', value='**'+ name +'** has been created')
+    except asyncpg.UniqueViolationError:
+      embed_message.add_field(name='ERROR', value='**'+name+'** list already exists!')
+    finally:
+      await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='addfilm', description='Adds a film to the master list')
   async def addfilm(self, interaction: discord.Interaction, title: str):
     embed_message = discord.Embed()
-    async with self.client.db.acquire() as connection:
-      try:
-        await connection.execute('INSERT INTO films(title) VALUES ($1);', title)
-        embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
-      except asyncpg.UniqueViolationError:
-        embed_message.add_field(name='ERROR', value='**'+title+'** already exists in the film master list!')
-      finally:
-        await self.client.db.release(connection)
+    connection = await self.client.db.acquire()
+    try:
+      await connection.execute('INSERT INTO films(title) VALUES ($1);', title)
+      embed_message.add_field(name='', value='**'+ title +'** has been added to the film master list')
+    except asyncpg.UniqueViolationError:
+      embed_message.add_field(name='ERROR', value='**'+title+'** already exists in the film master list!')
+    finally:
+      await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='add', description='Adds a film to the specified list')

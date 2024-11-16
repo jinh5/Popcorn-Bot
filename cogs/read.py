@@ -1,6 +1,5 @@
 import discord
 import os
-import asyncpg
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
@@ -32,43 +31,41 @@ class Read(commands.Cog):
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
   async def viewlist(self, interaction: discord.Interaction, name: str):
-    embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
-      try:
-        check = await connection.fetchrow(
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM lists 
+        WHERE list_name=($1)
+      );
+      ''',
+      name)
+      if check['exists'] == False:
+        embed_message = discord.Embed()
+        embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      data = await connection.fetch(
         '''
-        SELECT EXISTS(
-          SELECT 1 
-          FROM lists 
-          WHERE list_name=($1)
+        SELECT title
+        FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+        WHERE lists_films.list_id = (
+          SELECT list_id
+          FROM lists
+          WHERE list_name = ($1)
         );
         ''',
-        name)
-        if check['exists'] == False:
-          embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
-          await interaction.response.send_message(embed=embed_message)
-          await self.client.db.release(connection)
-          return
-        data = await connection.fetch(
-          '''
-          SELECT title
-          FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
-          WHERE lists_films.list_id = (
-            SELECT list_id
-            FROM lists
-            WHERE list_name = ($1)
-          );
-          ''',
-          name  
-        )
-        embed_message = discord.Embed(title=name)
-        if len(data)==0:
-          embed_message.add_field(name='', value='No entries in this list')
-        else:
-          for row in data:
-            embed_message.add_field(name='', value=row['title'], inline=False)
-      finally:
-        await self.client.db.release(connection)
+        name  
+      )
+      await self.client.db.release(connection)
+    embed_message = discord.Embed(title=name)
+    if len(data)==0:
+      embed_message.add_field(name='', value='No entries in this list')
+    else:
+      for row in data:
+        embed_message.add_field(name='', value=row['title'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewuncategorized', description='View all films that are not in lists')
@@ -98,19 +95,17 @@ class Read(commands.Cog):
   @app_commands.command(name='watchstatus', description='See if a film has been watched')
   async def watchstatus(self, interaction: discord.Interaction, filmtitle: str):
     embed_message = discord.Embed()
-    async with self.client.db.acquire() as connection:
-      try:
-        data = await self.client.db.fetch('SELECT watch_status FROM films WHERE title=($1);', filmtitle)
-        embed_message = discord.Embed()
-        if data[0]['watch_status']==False:
-          embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
-        elif data[0]['watch_status']==True:
-          embed_message.add_field(name='', value='**'+filmtitle+'** has been watched')
-        await interaction.response.send_message(embed=embed_message)
-      except IndexError:
-        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist!')
-      finally:
-        await self.client.db.release(connection)
+    connection = await self.client.db.acquire()
+    try:
+      data = await connection.fetch('SELECT watch_status FROM films WHERE title=($1);', filmtitle)
+      if data[0]['watch_status']==False:
+        embed_message.add_field(name='', value='**'+filmtitle+'** has not been watched yet')
+      elif data[0]['watch_status']==True:
+        embed_message.add_field(name='', value='**'+filmtitle+'** has been watched')
+    except IndexError:
+      embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist!')
+    finally:
+      await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
 async def setup(client):

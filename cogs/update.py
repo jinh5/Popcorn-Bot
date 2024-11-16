@@ -17,14 +17,25 @@ class Update(commands.Cog):
 
   @app_commands.command(name='editlistname', description='Edit the name of a list')
   async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):   
-    #check if name exists in lists before update 
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute('UPDATE lists SET list_name = ($1) WHERE list_name = ($2);', newname, originalname)
-    await self.client.db.release(connection)
-    
     embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM lists 
+        WHERE list_name=($1)
+      );
+      ''',
+      originalname)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+originalname+'** list does not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      await connection.execute('UPDATE lists SET list_name = ($1) WHERE list_name = ($2);', newname, originalname)
     embed_message.add_field(name='', value='**'+originalname+'** has been renamed to **'+newname+'**')
+    await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
