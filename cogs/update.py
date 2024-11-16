@@ -63,13 +63,24 @@ class Update(commands.Cog):
 
   @app_commands.command(name='changewatchstatus', description='Mark the watch status of a film from not watched to watched and vice versa')
   async def changewatchstatus(self, interaction: discord.Interaction, filmtitle: str):
-    #check if film exists
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute('UPDATE films SET watch_status = NOT watch_status WHERE title=($1);', filmtitle)
-    await self.client.db.release(connection)
-    
     embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM films
+        WHERE title=($1)
+      );
+      ''',
+      filmtitle)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+filmtitle+'** does not exist in film master list!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      await connection.execute('UPDATE films SET watch_status = NOT watch_status WHERE title=($1);', filmtitle)
+    await self.client.db.release(connection)
     embed_message.add_field(name='', value='Watch status of **'+filmtitle+'** has been changed')
     await interaction.response.send_message(embed=embed_message)
 
