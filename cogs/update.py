@@ -40,13 +40,24 @@ class Update(commands.Cog):
 
   @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
   async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
-    #check if title exists in films before update 
-    connection = await self.client.db.acquire()
-    async with connection.transaction():
-      await self.client.db.execute('UPDATE films SET title = ($1) WHERE title = ($2);', newtitle, originaltitle)
-    await self.client.db.release(connection)
-    
     embed_message = discord.Embed()
+    async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 1 
+        FROM films
+        WHERE title=($1)
+      );
+      ''',
+      originaltitle)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+originaltitle+'** does not exist in film master list!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
+      await connection.execute('UPDATE films SET title = ($1) WHERE title = ($2);', newtitle, originaltitle)
+    await self.client.db.release(connection)
     embed_message.add_field(name='', value='**'+originaltitle+'** has been renamed to **'+newtitle+'**')
     await interaction.response.send_message(embed=embed_message)
 
