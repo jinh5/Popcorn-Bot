@@ -19,6 +19,44 @@ class Misc(commands.Cog):
     fmt = await ctx.bot.tree.sync(guild=ctx.guild)
     await ctx.send(f'Synced {len(fmt)} command(s)')
 
+  async def listcheck(self, interaction: discord.Interaction, name):
+    embed_message = discord.Embed()
+    connection = await self.client.db.acquire()
+    list = await connection.fetchrow(
+    '''
+    SELECT EXISTS(
+      SELECT 
+      FROM lists 
+      WHERE list_name=($1)
+    );
+    ''',
+    name)
+    if list['exists'] == False:
+      embed_message = discord.Embed()
+      embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
+      await interaction.response.send_message(embed=embed_message)
+    await self.client.db.release(connection)
+    return list['exists']
+  
+  async def filmcheck(self, interaction: discord.Interaction, title):
+    embed_message = discord.Embed()
+    connection = await self.client.db.acquire()
+    film = await connection.fetchrow(
+    '''
+    SELECT EXISTS(
+      SELECT 
+      FROM films
+      WHERE title=($1)
+    );
+    ''',
+    title
+    )
+    if film['exists'] == False:
+      embed_message.add_field(name='ERROR', value='**'+title+'** does not exist in film master list!')
+      await interaction.response.send_message(embed=embed_message)
+    await self.client.db.release(connection)
+    return film['exists']
+
   @app_commands.command(name='help')
   async def help(self, interaction: discord.Interaction):
     embed_message = discord.Embed(title='Help Desk for Popcorn Bot', description='List of all commands for Popcorn Bot. Note: all film entries will be added to a master list of films.')
