@@ -3,11 +3,13 @@ import os
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
+from cogs.misc import Misc
 
 load_dotenv()
 
 class Read(commands.Cog):
   '''Commands for viewing and accessing data'''
+
   def __init__(self, client):
     self.client = client
   
@@ -15,8 +17,8 @@ class Read(commands.Cog):
   async def on_ready(self):
     print('read.py is ready') 
 
-  @app_commands.command(name='viewalllists', description='View all the lists that have been created')
-  async def viewalllists(self, interaction: discord.Interaction):
+  @app_commands.command(name='viewall', description='View all the lists that have been created')
+  async def viewall(self, interaction: discord.Interaction):
     connection = await self.client.db.acquire()
     data = await connection.fetch('SELECT list_name FROM lists;')
     await self.client.db.release(connection)
@@ -32,21 +34,6 @@ class Read(commands.Cog):
   @app_commands.command(name='viewlist', description='View all films in the specified list')
   async def viewlist(self, interaction: discord.Interaction, name: str):
     async with self.client.db.acquire() as connection:
-      check = await connection.fetchrow(
-      '''
-      SELECT EXISTS(
-        SELECT 
-        FROM lists 
-        WHERE list_name=($1)
-      );
-      ''',
-      name)
-      if check['exists'] == False:
-        embed_message = discord.Embed()
-        embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
-        await interaction.response.send_message(embed=embed_message)
-        await self.client.db.release(connection)
-        return
       data = await connection.fetch(
         '''
         SELECT title
@@ -68,8 +55,8 @@ class Read(commands.Cog):
         embed_message.add_field(name='', value=row['title'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
-  @app_commands.command(name='viewuncategorized', description='View all films that are not in lists')
-  async def viewuncategorized(self, interaction: discord.Interaction):
+  @app_commands.command(name='viewmisc', description='View all films that are not in lists')
+  async def viewmisc(self, interaction: discord.Interaction):
     connection = await self.client.db.acquire()
     data = await connection.fetch(
       '''
@@ -92,8 +79,8 @@ class Read(commands.Cog):
         embed_message.add_field(name='', value=row['title'], inline=False)
     await interaction.response.send_message(embed=embed_message)
 
-  @app_commands.command(name='watchstatus', description='See if a film has been watched')
-  async def watchstatus(self, interaction: discord.Interaction, filmtitle: str):
+  @app_commands.command(name='status', description='See if a film has been watched')
+  async def status(self, interaction: discord.Interaction, filmtitle: str):
     embed_message = discord.Embed()
     connection = await self.client.db.acquire()
     try:

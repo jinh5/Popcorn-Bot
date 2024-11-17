@@ -15,8 +15,8 @@ class Update(commands.Cog):
   async def on_ready(self):
     print('update.py is ready') 
 
-  @app_commands.command(name='editlistname', description='Edit the name of a list')
-  async def editlistname(self, interaction: discord.Interaction, originalname: str, newname: str):   
+  @app_commands.command(name='editlist', description='Edit the name of a list')
+  async def editlist(self, interaction: discord.Interaction, originalname: str, newname: str):   
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
       check = await connection.fetchrow(
@@ -38,8 +38,8 @@ class Update(commands.Cog):
     await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
 
-  @app_commands.command(name='editfilmtitle', description='Edit the title of a film')
-  async def editfilmtitle(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
+  @app_commands.command(name='editfilm', description='Edit the title of a film')
+  async def editfilm(self, interaction: discord.Interaction, originaltitle: str, newtitle: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
       check = await connection.fetchrow(
@@ -61,8 +61,8 @@ class Update(commands.Cog):
     embed_message.add_field(name='', value='**'+originaltitle+'** has been renamed to **'+newtitle+'**')
     await interaction.response.send_message(embed=embed_message)
 
-  @app_commands.command(name='changewatchstatus', description='Mark the watch status of a film from not watched to watched and vice versa')
-  async def changewatchstatus(self, interaction: discord.Interaction, filmtitle: str):
+  @app_commands.command(name='setstatus', description='Mark the watch status of a film from not watched to watched and vice versa')
+  async def setstatus(self, interaction: discord.Interaction, filmtitle: str):
     embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
       check = await connection.fetchrow(

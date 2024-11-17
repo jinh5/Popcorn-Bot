@@ -70,7 +70,8 @@ class Create(commands.Cog):
         )
         embed_message.add_field(name='', value='**'+filmtitle+'** has been added to **'+listname+'** list')
       except asyncpg.NotNullViolationError:
-        embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!')
+        embed_message.add_field(name='ERROR', value='**'+listname+'** list does not exist!', inline=False)
+        embed_message.add_field(name='', value='**'+filmtitle+'** has been added to the film master list.', inline=False)
       except asyncpg.UniqueViolationError:
         embed_message.add_field(name='ERROR', value='**'+filmtitle+'** is already in **'+listname+'** list!')
       finally:
