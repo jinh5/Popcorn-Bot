@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
-from cogs.misc import Misc
 
 load_dotenv()
 
@@ -33,7 +32,22 @@ class Read(commands.Cog):
 
   @app_commands.command(name='viewlist', description='View all films in the specified list')
   async def viewlist(self, interaction: discord.Interaction, name: str):
+    embed_message = discord.Embed()
     async with self.client.db.acquire() as connection:
+      check = await connection.fetchrow(
+      '''
+      SELECT EXISTS(
+        SELECT 
+        FROM lists 
+        WHERE list_name=($1)
+      );
+      ''',
+      name)
+      if check['exists'] == False:
+        embed_message.add_field(name='ERROR', value='**'+name+'** list does not exist!')
+        await interaction.response.send_message(embed=embed_message)
+        await self.client.db.release(connection)
+        return
       data = await connection.fetch(
         '''
         SELECT title
@@ -53,6 +67,7 @@ class Read(commands.Cog):
     else:
       for row in data:
         embed_message.add_field(name='', value=row['title'], inline=False)
+    print(embed_message)
     await interaction.response.send_message(embed=embed_message)
 
   @app_commands.command(name='viewmisc', description='View all films that are not in lists')
