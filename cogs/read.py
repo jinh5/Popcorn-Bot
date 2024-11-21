@@ -16,8 +16,8 @@ class Read(commands.Cog):
   async def on_ready(self):
     print('read.py is ready') 
 
-  @app_commands.command(name='viewall', description='View all the lists that have been created')
-  async def viewall(self, interaction: discord.Interaction):
+  @app_commands.command(name='lists', description='View all the lists that have been created')
+  async def lists(self, interaction: discord.Interaction):
     connection = await self.client.db.acquire()
     data = await connection.fetch('SELECT list_name FROM lists;')
     await self.client.db.release(connection)
