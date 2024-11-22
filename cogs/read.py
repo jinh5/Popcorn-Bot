@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
+from ui.pagination import Pagination
 
 load_dotenv()
 
@@ -109,6 +110,21 @@ class Read(commands.Cog):
     finally:
       await self.client.db.release(connection)
     await interaction.response.send_message(embed=embed_message)
+
+  @app_commands.command(name='show')
+  async def show(self, interaction: discord.Interaction):
+    users = [f"User {i}" for i in range(1, 65)]
+    L = 10
+    async def get_page(page: int):
+      emb = discord.Embed(title="The Users", description="")
+      offset = (page-1) * L
+      for user in users[offset:offset+L]:
+          emb.description += f"{user}\n"
+      n = Pagination.compute_total_pages(len(users), L)
+      emb.set_footer(text=f"Page {page} of {n}")
+      return emb, n
+    
+    await Pagination(interaction, get_page).navegate()
 
 async def setup(client):
   await client.add_cog(Read(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])
