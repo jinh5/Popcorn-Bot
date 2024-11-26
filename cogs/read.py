@@ -114,61 +114,152 @@ class Read(commands.Cog):
   @app_commands.command(name='watched')
   async def watched(self, interaction: discord.Interaction, listname: str = None):
     connection = await self.client.db.acquire()
-    check = await connection.fetch('SELECT count(*) FROM films')
+    page_size = 10
     embed_message = discord.Embed()
-    if check[0]['count']==0:
-      embed_message.add_field(name='ERROR', value='There are no film entries')
-      await interaction.response.send_message(embed=embed_message)
-    else:
-      data = await connection.fetch('SELECT title FROM films WHERE watch_status=TRUE;')
-      if len(data)==0:
-        embed_message.add_field(name='Watched List', value='No films have been watched yet')
+    if listname:
+      check = await connection.fetch(
+        '''
+        SELECT count(*) 
+        FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+        WHERE lists_films.list_id = (
+          SELECT list_id
+          FROM lists
+          WHERE list_name = ($1)
+        );
+        ''',
+        listname
+      )
+      if check[0]['count']==0:
+        embed_message.add_field(name='ERROR', value='There are no film entries in '+listname)
         await interaction.response.send_message(embed=embed_message)
       else:
-        films = []
-        for entry in data:
-          films.append(entry['title'])
-        L = 10
-        async def display_watched(page: int):
-          emb = discord.Embed(title="Watched List", description="")
-          offset = (page-1) * L
-          for film in films[offset:offset+L]:
-              emb.description += f"{film}\n"
-          n = Pagination.compute_total_pages(len(films), L)
-          emb.set_footer(text=f"Page {page} of {n}")
-          return emb, n
-        await Pagination(interaction, display_watched).navegate()
+        data = await connection.fetch(
+          '''
+          SELECT title
+          FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+          WHERE lists_films.list_id = (
+            SELECT list_id
+            FROM lists
+            WHERE list_name = ($1) AND watch_status = TRUE
+          );
+          ''',
+          listname
+        )
+        if len(data)==0:
+          embed_message.add_field(name=listname, value='No films have been watched yet')
+          await interaction.response.send_message(embed=embed_message)
+        else:
+          films = []
+          for entry in data:
+            films.append(entry['title'])
+          async def display_watched(page: int):
+            emb = discord.Embed(title=listname+" - Watched List", description="")
+            offset = (page-1) * page_size
+            for film in films[offset:offset+page_size]:
+                emb.description += f"{film}\n"
+            n = Pagination.compute_total_pages(len(films), page_size)
+            emb.set_footer(text=f"Page {page} of {n}")
+            return emb, n
+          await Pagination(interaction, display_watched).navegate()
+    else:
+      check = await connection.fetch('SELECT count(*) FROM films')
+      if check[0]['count']==0:
+        embed_message.add_field(name='ERROR', value='There are no film entries')
+        await interaction.response.send_message(embed=embed_message)
+      else:
+        data = await connection.fetch('SELECT title FROM films WHERE watch_status=TRUE;')
+        if len(data)==0:
+          embed_message.add_field(name='Watched List', value='No films have been watched yet')
+          await interaction.response.send_message(embed=embed_message)
+        else:
+          films = []
+          for entry in data:
+            films.append(entry['title'])
+          async def display_watched(page: int):
+            emb = discord.Embed(title="Watched List", description="")
+            offset = (page-1) * page_size
+            for film in films[offset:offset+page_size]:
+                emb.description += f"{film}\n"
+            n = Pagination.compute_total_pages(len(films), page_size)
+            emb.set_footer(text=f"Page {page} of {n}")
+            return emb, n
+          await Pagination(interaction, display_watched).navegate()
     await self.client.db.release(connection)
 
   @app_commands.command(name='notwatched')
-  async def notwatched(self, interaction: discord.Interaction):
+  async def notwatched(self, interaction: discord.Interaction, listname: str = None):
     connection = await self.client.db.acquire()
-    check = await connection.fetch('SELECT count(*) FROM films')
+    page_size = 10
     embed_message = discord.Embed()
-    if check[0]['count']==0:
-      await self.client.db.release(connection)
-      embed_message.add_field(name='', value='There are no film entries')
-      await interaction.response.send_message(embed=embed_message)
-    else:
-      data = await connection.fetch('SELECT title FROM films WHERE watch_status=FALSE;')
-      if len(data)==0:
-        embed_message.add_field(name='Not Watched List', value='All films have been watched')
+    if listname:
+      check = await connection.fetch(
+        '''
+        SELECT count(*) 
+        FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+        WHERE lists_films.list_id = (
+          SELECT list_id
+          FROM lists
+          WHERE list_name = ($1)
+        );
+        ''',
+        listname
+      )
+      if check[0]['count']==0:
+        embed_message.add_field(name='ERROR', value='There are no film entries in '+listname)
         await interaction.response.send_message(embed=embed_message)
       else:
-        films = []
-        for entry in data:
-          films.append(entry['title'])
-        L = 10
-        async def display_watched(page: int):
-          emb = discord.Embed(title="Not Watched List", description="")
-          offset = (page-1) * L
-          for film in films[offset:offset+L]:
-              emb.description += f"{film}\n"
-          n = Pagination.compute_total_pages(len(films), L)
-          emb.set_footer(text=f"Page {page} of {n}")
-          return emb, n
-        await Pagination(interaction, display_watched).navegate()
-      await self.client.db.release(connection)
+        data = await connection.fetch(
+          '''
+          SELECT title
+          FROM lists JOIN lists_films ON lists_films.list_id=lists.list_id JOIN films ON films.film_id=lists_films.film_id
+          WHERE lists_films.list_id = (
+            SELECT list_id
+            FROM lists
+            WHERE list_name = ($1) AND watch_status = FALSE
+          );
+          ''',
+          listname
+        )
+        if len(data)==0:
+          embed_message.add_field(name=listname, value='All films have been watched')
+          await interaction.response.send_message(embed=embed_message)
+        else:
+          films = []
+          for entry in data:
+            films.append(entry['title'])
+          async def display_watched(page: int):
+            emb = discord.Embed(title=listname+" - Not Watched List", description="")
+            offset = (page-1) * page_size
+            for film in films[offset:offset+page_size]:
+                emb.description += f"{film}\n"
+            n = Pagination.compute_total_pages(len(films), page_size)
+            emb.set_footer(text=f"Page {page} of {n}")
+            return emb, n
+          await Pagination(interaction, display_watched).navegate()
+    else:
+      check = await connection.fetch('SELECT count(*) FROM films')
+      if check[0]['count']==0:
+        embed_message.add_field(name='ERROR', value='There are no film entries')
+        await interaction.response.send_message(embed=embed_message)
+      else:
+        data = await connection.fetch('SELECT title FROM films WHERE watch_status=FALSE;')
+        if len(data)==0:
+          embed_message.add_field(name='Not Watched List', value='All films have been watched')
+          await interaction.response.send_message(embed=embed_message)
+        else:
+          films = []
+          for entry in data:
+            films.append(entry['title'])
+          async def display_watched(page: int):
+            emb = discord.Embed(title="Not Watched List", description="")
+            offset = (page-1) * page_size
+            for film in films[offset:offset+page_size]:
+                emb.description += f"{film}\n"
+            n = Pagination.compute_total_pages(len(films), page_size)
+            emb.set_footer(text=f"Page {page} of {n}")
+            return emb, n
+          await Pagination(interaction, display_watched).navegate()
+    await self.client.db.release(connection)
         
 async def setup(client):
   await client.add_cog(Read(client), guilds=[discord.Object(id=os.getenv('SERVER_ID'))])

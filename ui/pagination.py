@@ -1,7 +1,7 @@
 import discord
 from typing import Callable, Optional
 
-# code adapted from: https://stackoverflow.com/questions/76247812/how-to-create-pagination-embed-menu-in-discord-py
+# modified code from: https://stackoverflow.com/questions/76247812/how-to-create-pagination-embed-menu-in-discord-py
 # credit: Hazzu
 
 class Pagination(discord.ui.View):
