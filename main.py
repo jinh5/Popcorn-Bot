@@ -26,6 +26,15 @@ async def main():
         application_id = os.getenv('APPLICATION_ID')
       ) as bot:
         intents.message_content = True
+        
+        @bot.event
+        async def on_guild_join(guild):
+          system_channel = guild.system_channel
+          if system_channel:
+            embed_message = discord.Embed(title="Hello! I'm Popcorn Bot!", description=f"Thanks for adding me to **{guild.name}**! I'm here to help you organize lists for discord movie nights!")
+            embed_message.add_field(name='Getting Started', value='Type /help to see a list of commands', inline=False)
+            embed_message.add_field(name='Code Repository', value='https://github.com/jinh5/Popcorn-Bot', inline=False)
+            await system_channel.send(embed=embed_message)
 
         async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
           if isinstance(error, app_commands.CommandOnCooldown):
