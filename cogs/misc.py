@@ -28,6 +28,8 @@ class Misc(commands.Cog):
     embed_message.add_field(name='lists', value='View all the lists that have been created', inline=False)
     embed_message.add_field(name='viewlist [list name]', value='View all films in the specified list', inline=False)
     embed_message.add_field(name='viewmisc', value='View all films that are not in lists', inline=False)
+    embed_message.add_field(name='watched', value='View all films that have been watched', inline=False)
+    embed_message.add_field(name='notwatched', value='View all films that have not been watched', inline=False)
     embed_message.add_field(name='status [film title]', value='See if a film has been watched', inline=False)
     embed_message.add_field(name='editlist [original name] [new name]', value='Edit the name of a list', inline=False)
     embed_message.add_field(name='editfilm [original title] [new title]', value='Edit the title of a film', inline=False)
